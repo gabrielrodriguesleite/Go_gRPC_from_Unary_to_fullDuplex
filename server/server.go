@@ -6,6 +6,7 @@ import (
 	pb "go-grpc/pb"
 	"log"
 	"net"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -27,6 +28,25 @@ func (*server) Call(ctx context.Context, req *pb.CallRequest) (*pb.CallResponse,
 	}
 
 	return res, nil
+}
+
+// ----- Server Stream -----
+func (*server) CallTeam(req *pb.CallTeamRequest, stream pb.HeroesService_CallTeamServer) error {
+	log.Printf("CallTeam was invoked with: %v\n", req)
+
+	hero := req.GetCalling().GetHero()
+
+	xmen := []string{"Cyclops", "Iceman", "Angel", "Beast", "Phoenix"}
+
+	for _, x := range xmen {
+		result := fmt.Sprintf("You called the %v! %v is goin!!\n", hero, x)
+		res := &pb.CallTeamResponse{
+			Result: result,
+		}
+		stream.Send(res)
+		time.Sleep(1 * time.Second) // 1 sec for suspense
+	}
+	return nil
 }
 
 func main() {
