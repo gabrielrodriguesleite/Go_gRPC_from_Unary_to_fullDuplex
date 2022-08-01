@@ -12,7 +12,18 @@ message CallRequest { Calling calling = 1; }
 
 message CallResponse { string result = 1; }
 
+// Server Streaming = Client send ONE request, server return MANY responses
+
+message CallTeamRequest { Calling calling = 1; }
+
+message CallTeamResponse { string result = 1; }
+
+
+// ===== SERVICES =====
 service HeroesService {
   // Unary Server
   rpc Call (CallRequest) returns (CallResponse) {};
+
+  // Server Streaming
+  rpc CallTeam(CallTeamRequest) returns (stream CallTeamResponse) {};
 };
