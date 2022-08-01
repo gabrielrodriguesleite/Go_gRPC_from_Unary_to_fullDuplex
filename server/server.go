@@ -10,7 +10,7 @@ import (
 )
 
 type server struct {
-	pb.UnimplementedDataServiceServer
+	pb.UnimplementedHeroesServiceServer
 }
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 
 	s := grpc.NewServer()
 
-	pb.RegisterDataServiceServer(s, &server{})
+	pb.RegisterHeroesServiceServer(s, &server{})
 	if err := s.Serve(l); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
