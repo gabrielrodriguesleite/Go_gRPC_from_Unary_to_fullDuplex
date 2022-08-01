@@ -22,6 +22,8 @@ type HeroesServiceClient interface {
 	Call(ctx context.Context, in *CallRequest, opts ...grpc.CallOption) (*CallResponse, error)
 	// Server Streaming
 	CallTeam(ctx context.Context, in *CallTeamRequest, opts ...grpc.CallOption) (HeroesService_CallTeamClient, error)
+	// Client Streaming
+	CallManyHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallManyHeroesClient, error)
 }
 
 type heroesServiceClient struct {
@@ -73,6 +75,40 @@ func (x *heroesServiceCallTeamClient) Recv() (*CallTeamResponse, error) {
 	return m, nil
 }
 
+func (c *heroesServiceClient) CallManyHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallManyHeroesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &HeroesService_ServiceDesc.Streams[1], "/heroes.HeroesService/CallManyHeroes", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &heroesServiceCallManyHeroesClient{stream}
+	return x, nil
+}
+
+type HeroesService_CallManyHeroesClient interface {
+	Send(*CallManyHeroesRequest) error
+	CloseAndRecv() (*CallManyHeroesResponse, error)
+	grpc.ClientStream
+}
+
+type heroesServiceCallManyHeroesClient struct {
+	grpc.ClientStream
+}
+
+func (x *heroesServiceCallManyHeroesClient) Send(m *CallManyHeroesRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *heroesServiceCallManyHeroesClient) CloseAndRecv() (*CallManyHeroesResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(CallManyHeroesResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // HeroesServiceServer is the server API for HeroesService service.
 // All implementations must embed UnimplementedHeroesServiceServer
 // for forward compatibility
@@ -81,6 +117,8 @@ type HeroesServiceServer interface {
 	Call(context.Context, *CallRequest) (*CallResponse, error)
 	// Server Streaming
 	CallTeam(*CallTeamRequest, HeroesService_CallTeamServer) error
+	// Client Streaming
+	CallManyHeroes(HeroesService_CallManyHeroesServer) error
 	mustEmbedUnimplementedHeroesServiceServer()
 }
 
@@ -93,6 +131,9 @@ func (UnimplementedHeroesServiceServer) Call(context.Context, *CallRequest) (*Ca
 }
 func (UnimplementedHeroesServiceServer) CallTeam(*CallTeamRequest, HeroesService_CallTeamServer) error {
 	return status.Errorf(codes.Unimplemented, "method CallTeam not implemented")
+}
+func (UnimplementedHeroesServiceServer) CallManyHeroes(HeroesService_CallManyHeroesServer) error {
+	return status.Errorf(codes.Unimplemented, "method CallManyHeroes not implemented")
 }
 func (UnimplementedHeroesServiceServer) mustEmbedUnimplementedHeroesServiceServer() {}
 
@@ -146,6 +187,32 @@ func (x *heroesServiceCallTeamServer) Send(m *CallTeamResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _HeroesService_CallManyHeroes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(HeroesServiceServer).CallManyHeroes(&heroesServiceCallManyHeroesServer{stream})
+}
+
+type HeroesService_CallManyHeroesServer interface {
+	SendAndClose(*CallManyHeroesResponse) error
+	Recv() (*CallManyHeroesRequest, error)
+	grpc.ServerStream
+}
+
+type heroesServiceCallManyHeroesServer struct {
+	grpc.ServerStream
+}
+
+func (x *heroesServiceCallManyHeroesServer) SendAndClose(m *CallManyHeroesResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *heroesServiceCallManyHeroesServer) Recv() (*CallManyHeroesRequest, error) {
+	m := new(CallManyHeroesRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // HeroesService_ServiceDesc is the grpc.ServiceDesc for HeroesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -163,6 +230,11 @@ var HeroesService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "CallTeam",
 			Handler:       _HeroesService_CallTeam_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "CallManyHeroes",
+			Handler:       _HeroesService_CallManyHeroes_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "pb/data.proto",
