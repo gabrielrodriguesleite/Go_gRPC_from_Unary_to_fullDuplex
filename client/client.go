@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "go-grpc/pb"
+	"io"
 	"log"
 	"time"
 
@@ -62,45 +63,107 @@ import (
 // }
 
 // ----- Client Streaming -----
-func doClientStreaming(c pb.HeroesServiceClient) {
-	log.Println("Starting Client Streaming RPC...")
+// func doClientStreaming(c pb.HeroesServiceClient) {
+// 	log.Println("Starting Client Streaming RPC...")
 
-	stream, err := c.CallManyHeroes(context.Background())
+// 	stream, err := c.CallManyHeroes(context.Background())
+// 	if err != nil {
+// 		log.Printf("Error while calling CallManyHeroes: %v", err)
+// 	}
+
+// 	requests := []*pb.CallManyHeroesRequest{
+// 		{
+// 			Calling: &pb.Calling{
+// 				Hero: "Mister Fantastic",
+// 			},
+// 		}, {
+// 			Calling: &pb.Calling{
+// 				Hero: "Invisible Woman",
+// 			},
+// 		}, {
+// 			Calling: &pb.Calling{
+// 				Hero: "Thing",
+// 			},
+// 		}, {
+// 			Calling: &pb.Calling{
+// 				Hero: "Human Torch",
+// 			},
+// 		},
+// 	}
+
+// 	for _, req := range requests {
+// 		stream.Send(req)
+// 		time.Sleep(1 * time.Second) // delay for suspense
+// 	}
+
+// 	res, err := stream.CloseAndRecv()
+// 	if err != nil {
+// 		log.Printf("Error while receiving response from CallManyHeroes: %v", err)
+// 	}
+
+// 	log.Printf("CallManyHeroes response: %v", res)
+// }
+
+// Full Duplex streaming
+func doBidirecionalStreaming(c pb.HeroesServiceClient) {
+	log.Printf("Starting Bi Direcional Streaming RPC...")
+
+	stream, err := c.CallEveryone(context.Background())
 	if err != nil {
-		log.Printf("Error while calling CallManyHeroes: %v", err)
+		log.Printf("Error while calling CallEveryoneHeroes: %v", err)
 	}
 
-	requests := []*pb.CallManyHeroesRequest{
+	requests := []*pb.CallEveryoneRequest{
 		{
 			Calling: &pb.Calling{
-				Hero: "Mister Fantastic",
+				Hero: "Conan",
 			},
 		}, {
 			Calling: &pb.Calling{
-				Hero: "Invisible Woman",
+				Hero: "Bêlit",
 			},
 		}, {
 			Calling: &pb.Calling{
-				Hero: "Thing",
-			},
-		}, {
-			Calling: &pb.Calling{
-				Hero: "Human Torch",
+				Hero: "Red Sonja",
 			},
 		},
 	}
 
-	for _, req := range requests {
-		stream.Send(req)
-		time.Sleep(1 * time.Second) // delay for suspense
-	}
+	// Concurrency
+	waitChannel := make(chan struct{})
 
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		log.Printf("Error while receiving response from CallManyHeroes: %v", err)
-	}
+	// send the messages using Go Routine
+	go func() {
+		for _, req := range requests {
+			log.Printf("Sending req: %v", req)
+			stream.Send(req)
+			time.Sleep(2 * time.Second) // delay for suspense
+		}
+		stream.CloseSend()
+	}()
 
-	log.Printf("CallManyHeroes response: %v", res)
+	// receive messages using Go Routine
+	go func() {
+		for {
+			res, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+
+			if err != nil {
+				log.Printf("Error while receiving response from CallEveryone: %v", err)
+				break
+			}
+
+			result := res.GetResult()
+			log.Printf("Call Everyone response: %v\n", result)
+		}
+		close(waitChannel)
+	}()
+
+	// block until everything is done
+	<-waitChannel
 }
 
 // ----- MAIN -----
@@ -123,5 +186,8 @@ func main() {
 	// doServerStreaming(c)
 
 	// ----- Client Streaming -----
-	doClientStreaming(c)
+	// doClientStreaming(c)
+
+	// ----- Full Duplex Streaming -----
+	doBidirecionalStreaming(c)
 }
