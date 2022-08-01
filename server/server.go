@@ -6,10 +6,7 @@ import (
 	pb "go-grpc/pb"
 	"io"
 	"log"
-	"net"
 	"time"
-
-	"google.golang.org/grpc"
 )
 
 type server struct {
@@ -105,24 +102,5 @@ func (*server) CallEveryone(stream pb.HeroesService_CallEveryoneServer) error {
 			log.Println("Error while sending data to client.")
 			return err
 		}
-	}
-}
-
-// ----- Main -----
-func main() {
-
-	l, err := net.Listen("tcp", "localhost:50051")
-	if err != nil {
-		log.Fatalf("Failed to listen: %v", err)
-	}
-
-	s := grpc.NewServer()
-
-	pb.RegisterHeroesServiceServer(s, &server{})
-
-	fmt.Println("Startin server...")
-
-	if err := s.Serve(l); err != nil {
-		log.Fatalf("Failed to serve: %v", err)
 	}
 }
