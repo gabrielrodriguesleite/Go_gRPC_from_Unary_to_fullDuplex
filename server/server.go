@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "go-grpc/pb"
+	"io"
 	"log"
 	"net"
 	"time"
@@ -47,6 +48,30 @@ func (*server) CallTeam(req *pb.CallTeamRequest, stream pb.HeroesService_CallTea
 		time.Sleep(1 * time.Second) // 1 sec for suspense
 	}
 	return nil
+}
+
+// ----- Client Stream -----
+func (*server) CallManyHeroes(stream pb.HeroesService_CallManyHeroesServer) error {
+	log.Printf("CallManyHeroes was invoked with a streaming request")
+
+	result := "You called "
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			return stream.SendAndClose(&pb.CallManyHeroesResponse{
+				Result: result + "The Fantastic Four!",
+			})
+		}
+
+		if err != nil {
+			log.Printf("Error reading client stream %v\n", err)
+		}
+
+		result += req.GetCalling().GetHero() + " - "
+	}
+
 }
 
 func main() {
