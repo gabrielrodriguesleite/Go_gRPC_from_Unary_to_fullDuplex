@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	pb "go-grpc/pb"
 	"log"
@@ -9,6 +10,24 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+func doUnary(c pb.HeroesServiceClient) { // add for Unary
+	log.Println("Starting Unary RPC...")
+
+	req := &pb.CallRequest{
+		Calling: &pb.Calling{
+			Hero: "Spiderman",
+		},
+	}
+
+	res, err := c.Call(context.Background(), req)
+	if err != nil {
+		log.Fatalf("Error Call RPC: %v", err)
+	}
+
+	log.Printf("Response from Call: %v\n", res.Result)
+}
+
+// ----- MAIN -----
 func main() {
 	fmt.Println("Starting Client...")
 
@@ -19,5 +38,8 @@ func main() {
 	defer cc.Close()
 
 	c := pb.NewHeroesServiceClient(cc)
-	fmt.Println(c)
+	// fmt.Println(c) // for previous test of server/client connection
+
+	// ----- Unary -----
+	doUnary(c)
 }
