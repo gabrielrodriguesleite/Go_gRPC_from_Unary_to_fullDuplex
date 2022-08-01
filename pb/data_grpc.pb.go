@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion7
 type HeroesServiceClient interface {
 	// Unary Server
 	Call(ctx context.Context, in *CallRequest, opts ...grpc.CallOption) (*CallResponse, error)
+	// Server Streaming
+	CallTeam(ctx context.Context, in *CallTeamRequest, opts ...grpc.CallOption) (HeroesService_CallTeamClient, error)
 }
 
 type heroesServiceClient struct {
@@ -39,12 +41,46 @@ func (c *heroesServiceClient) Call(ctx context.Context, in *CallRequest, opts ..
 	return out, nil
 }
 
+func (c *heroesServiceClient) CallTeam(ctx context.Context, in *CallTeamRequest, opts ...grpc.CallOption) (HeroesService_CallTeamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &HeroesService_ServiceDesc.Streams[0], "/heroes.HeroesService/CallTeam", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &heroesServiceCallTeamClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type HeroesService_CallTeamClient interface {
+	Recv() (*CallTeamResponse, error)
+	grpc.ClientStream
+}
+
+type heroesServiceCallTeamClient struct {
+	grpc.ClientStream
+}
+
+func (x *heroesServiceCallTeamClient) Recv() (*CallTeamResponse, error) {
+	m := new(CallTeamResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // HeroesServiceServer is the server API for HeroesService service.
 // All implementations must embed UnimplementedHeroesServiceServer
 // for forward compatibility
 type HeroesServiceServer interface {
 	// Unary Server
 	Call(context.Context, *CallRequest) (*CallResponse, error)
+	// Server Streaming
+	CallTeam(*CallTeamRequest, HeroesService_CallTeamServer) error
 	mustEmbedUnimplementedHeroesServiceServer()
 }
 
@@ -54,6 +90,9 @@ type UnimplementedHeroesServiceServer struct {
 
 func (UnimplementedHeroesServiceServer) Call(context.Context, *CallRequest) (*CallResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Call not implemented")
+}
+func (UnimplementedHeroesServiceServer) CallTeam(*CallTeamRequest, HeroesService_CallTeamServer) error {
+	return status.Errorf(codes.Unimplemented, "method CallTeam not implemented")
 }
 func (UnimplementedHeroesServiceServer) mustEmbedUnimplementedHeroesServiceServer() {}
 
@@ -86,6 +125,27 @@ func _HeroesService_Call_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HeroesService_CallTeam_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(CallTeamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(HeroesServiceServer).CallTeam(m, &heroesServiceCallTeamServer{stream})
+}
+
+type HeroesService_CallTeamServer interface {
+	Send(*CallTeamResponse) error
+	grpc.ServerStream
+}
+
+type heroesServiceCallTeamServer struct {
+	grpc.ServerStream
+}
+
+func (x *heroesServiceCallTeamServer) Send(m *CallTeamResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // HeroesService_ServiceDesc is the grpc.ServiceDesc for HeroesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +158,12 @@ var HeroesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HeroesService_Call_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CallTeam",
+			Handler:       _HeroesService_CallTeam_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "pb/data.proto",
 }
