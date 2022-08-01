@@ -1,7 +1,18 @@
 syntax = "proto3";
 
-package data;
+package heroes;
 
-option go_package = "pb/data";
+option go_package = "pb/heroes";
 
-service DataService {};
+// Unary Server = Client send ONE request, server return ONE response
+
+message Calling { string hero = 1; }
+
+message CallRequest { Calling calling = 1; }
+
+message CallResponse { string result = 1; }
+
+service HeroesService {
+  // Unary Server
+  rpc Call (CallRequest) returns (CallResponse) {};
+};
