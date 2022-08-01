@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	pb "go-grpc/pb"
-	"io"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -30,35 +30,77 @@ import (
 // }
 
 // ----- Server Streaming -----
-func doServerStreaming(c pb.HeroesServiceClient) {
-	log.Printf("Starting Server Straming RPC...")
+// func doServerStreaming(c pb.HeroesServiceClient) {
+// 	log.Printf("Starting Server Straming RPC...")
 
-	req := &pb.CallTeamRequest{
-		Calling: &pb.Calling{
-			Hero: "X-Men",
+// 	req := &pb.CallTeamRequest{
+// 		Calling: &pb.Calling{
+// 			Hero: "X-Men",
+// 		},
+// 	}
+
+// 	stream, err := c.CallTeam(context.Background(), req)
+
+// 	if err != nil {
+// 		log.Fatalf("Error calling Server Streaming CallTeam RPC: %v", err)
+// 	}
+
+// 	for { // while true ?
+// 		res, err := stream.Recv()
+
+// 		if err == io.EOF {
+// 			break
+// 		}
+
+// 		if err != nil {
+// 			log.Printf("Error while reading stream: %v", err)
+// 		}
+
+// 		log.Printf("Response from CallTeam: %v\n", res.GetResult())
+// 	}
+
+// }
+
+// ----- Client Streaming -----
+func doClientStreaming(c pb.HeroesServiceClient) {
+	log.Println("Starting Client Streaming RPC...")
+
+	stream, err := c.CallManyHeroes(context.Background())
+	if err != nil {
+		log.Printf("Error while calling CallManyHeroes: %v", err)
+	}
+
+	requests := []*pb.CallManyHeroesRequest{
+		{
+			Calling: &pb.Calling{
+				Hero: "Mister Fantastic",
+			},
+		}, {
+			Calling: &pb.Calling{
+				Hero: "Invisible Woman",
+			},
+		}, {
+			Calling: &pb.Calling{
+				Hero: "Thing",
+			},
+		}, {
+			Calling: &pb.Calling{
+				Hero: "Human Torch",
+			},
 		},
 	}
 
-	stream, err := c.CallTeam(context.Background(), req)
+	for _, req := range requests {
+		stream.Send(req)
+		time.Sleep(1 * time.Second) // delay for suspense
+	}
 
+	res, err := stream.CloseAndRecv()
 	if err != nil {
-		log.Fatalf("Error calling Server Streaming CallTeam RPC: %v", err)
+		log.Printf("Error while receiving response from CallManyHeroes: %v", err)
 	}
 
-	for { // while true ?
-		res, err := stream.Recv()
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			log.Printf("Error while reading stream: %v", err)
-		}
-
-		log.Printf("Response from CallTeam: %v\n", res.GetResult())
-	}
-
+	log.Printf("CallManyHeroes response: %v", res)
 }
 
 // ----- MAIN -----
@@ -78,5 +120,8 @@ func main() {
 	// doUnary(c)
 
 	// ----- Server Streaming -----
-	doServerStreaming(c)
+	// doServerStreaming(c)
+
+	// ----- Client Streaming -----
+	doClientStreaming(c)
 }
