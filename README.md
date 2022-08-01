@@ -14,4 +14,5 @@ go mod tidy # para instalar as dependencias
 ```
 
 ###### REFERENCIAS
+**↓ so much errors to fix but ok (be aware)**
 https://www.linkedin.com/pulse/grpc-go-jos%25C3%25A9-augusto-zimmermann-negreiros/
