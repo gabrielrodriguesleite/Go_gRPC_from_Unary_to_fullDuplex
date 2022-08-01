@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	pb "go-grpc/pb"
 	"log"
@@ -11,6 +12,21 @@ import (
 
 type server struct {
 	pb.UnimplementedHeroesServiceServer
+}
+
+// ----- Unary -----
+func (*server) Call(ctx context.Context, req *pb.CallRequest) (*pb.CallResponse, error) {
+	log.Printf("Greet was invoked with %v\n", req)
+
+	hero := req.GetCalling().GetHero()
+
+	result := hero + " is on its way!"
+
+	res := &pb.CallResponse{
+		Result: result,
+	}
+
+	return res, nil
 }
 
 func main() {
