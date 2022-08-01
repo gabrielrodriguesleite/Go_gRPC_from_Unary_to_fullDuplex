@@ -66,7 +66,7 @@ func (*server) CallManyHeroes(stream pb.HeroesService_CallManyHeroesServer) erro
 		}
 
 		if err != nil {
-			log.Printf("Error reading client stream %v\n", err)
+			log.Printf("Error reading client stream: %v\n", err)
 		}
 
 		result += req.GetCalling().GetHero() + " - "
@@ -74,8 +74,42 @@ func (*server) CallManyHeroes(stream pb.HeroesService_CallManyHeroesServer) erro
 
 }
 
+// ----- Full Duplex Stream -----
+func (*server) CallEveryone(stream pb.HeroesService_CallEveryoneServer) error {
+	log.Println("CallEveryone was invoked with a streaming request.")
+
+	for {
+		req, err := stream.Recv()
+
+		if err == io.EOF {
+			log.Println("Request end")
+			return nil
+		}
+
+		log.Printf("Request: %v\n", req)
+
+		if err != nil {
+			log.Printf("Error reading client stream.")
+			return err
+		}
+
+		hero := req.GetCalling().GetHero()
+
+		result := hero + " is on its way!"
+
+		err = stream.Send(&pb.CallEveryoneResponse{
+			Result: result,
+		})
+
+		if err != nil {
+			log.Println("Error while sending data to client.")
+			return err
+		}
+	}
+}
+
+// ----- Main -----
 func main() {
-	fmt.Println("Startin server...")
 
 	l, err := net.Listen("tcp", "localhost:50051")
 	if err != nil {
@@ -85,6 +119,9 @@ func main() {
 	s := grpc.NewServer()
 
 	pb.RegisterHeroesServiceServer(s, &server{})
+
+	fmt.Println("Startin server...")
+
 	if err := s.Serve(l); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
