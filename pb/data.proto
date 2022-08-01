@@ -24,6 +24,12 @@ message CallManyHeroesRequest { Calling calling = 1; }
 
 message CallManyHeroesResponse { string result = 1; }
 
+// Full Duplex Streaming = Client sent MANY request, server return MANY response
+
+message CallEveryoneRequest { Calling greeting = 1; }
+
+message CallEveryoneResponse { string result = 1; }
+
 
 // ===== SERVICES =====
 service HeroesService {
@@ -35,4 +41,7 @@ service HeroesService {
 
   // Client Streaming
   rpc CallManyHeroes(stream CallManyHeroesRequest) returns (CallManyHeroesResponse) {};
+
+  // Full Duplex streaming
+  rpc CallEveryoneHeroes(stream CallEveryoneRequest) returns (stream CallEveryoneResponse) {};
 };
