@@ -18,6 +18,12 @@ message CallTeamRequest { Calling calling = 1; }
 
 message CallTeamResponse { string result = 1; }
 
+// Client Streaming = Client send MANY request, server return ONE response
+
+message CallManyHeroesRequest { Calling calling = 1; }
+
+message CallManyHeroesResponse { string result = 1; }
+
 
 // ===== SERVICES =====
 service HeroesService {
@@ -26,4 +32,7 @@ service HeroesService {
 
   // Server Streaming
   rpc CallTeam(CallTeamRequest) returns (stream CallTeamResponse) {};
+
+  // Client Streaming
+  rpc CallManyHeroes(stream CallManyHeroesRequest) returns (CallManyHeroesResponse) {};
 };
