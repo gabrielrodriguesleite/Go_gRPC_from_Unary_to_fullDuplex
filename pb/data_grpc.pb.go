@@ -25,7 +25,7 @@ type HeroesServiceClient interface {
 	// Client Streaming
 	CallManyHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallManyHeroesClient, error)
 	// Full Duplex streaming
-	CallEveryoneHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneHeroesClient, error)
+	CallEveryone(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneClient, error)
 }
 
 type heroesServiceClient struct {
@@ -111,30 +111,30 @@ func (x *heroesServiceCallManyHeroesClient) CloseAndRecv() (*CallManyHeroesRespo
 	return m, nil
 }
 
-func (c *heroesServiceClient) CallEveryoneHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneHeroesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &HeroesService_ServiceDesc.Streams[2], "/heroes.HeroesService/CallEveryoneHeroes", opts...)
+func (c *heroesServiceClient) CallEveryone(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneClient, error) {
+	stream, err := c.cc.NewStream(ctx, &HeroesService_ServiceDesc.Streams[2], "/heroes.HeroesService/CallEveryone", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &heroesServiceCallEveryoneHeroesClient{stream}
+	x := &heroesServiceCallEveryoneClient{stream}
 	return x, nil
 }
 
-type HeroesService_CallEveryoneHeroesClient interface {
+type HeroesService_CallEveryoneClient interface {
 	Send(*CallEveryoneRequest) error
 	Recv() (*CallEveryoneResponse, error)
 	grpc.ClientStream
 }
 
-type heroesServiceCallEveryoneHeroesClient struct {
+type heroesServiceCallEveryoneClient struct {
 	grpc.ClientStream
 }
 
-func (x *heroesServiceCallEveryoneHeroesClient) Send(m *CallEveryoneRequest) error {
+func (x *heroesServiceCallEveryoneClient) Send(m *CallEveryoneRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *heroesServiceCallEveryoneHeroesClient) Recv() (*CallEveryoneResponse, error) {
+func (x *heroesServiceCallEveryoneClient) Recv() (*CallEveryoneResponse, error) {
 	m := new(CallEveryoneResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -153,7 +153,7 @@ type HeroesServiceServer interface {
 	// Client Streaming
 	CallManyHeroes(HeroesService_CallManyHeroesServer) error
 	// Full Duplex streaming
-	CallEveryoneHeroes(HeroesService_CallEveryoneHeroesServer) error
+	CallEveryone(HeroesService_CallEveryoneServer) error
 	mustEmbedUnimplementedHeroesServiceServer()
 }
 
@@ -170,8 +170,8 @@ func (UnimplementedHeroesServiceServer) CallTeam(*CallTeamRequest, HeroesService
 func (UnimplementedHeroesServiceServer) CallManyHeroes(HeroesService_CallManyHeroesServer) error {
 	return status.Errorf(codes.Unimplemented, "method CallManyHeroes not implemented")
 }
-func (UnimplementedHeroesServiceServer) CallEveryoneHeroes(HeroesService_CallEveryoneHeroesServer) error {
-	return status.Errorf(codes.Unimplemented, "method CallEveryoneHeroes not implemented")
+func (UnimplementedHeroesServiceServer) CallEveryone(HeroesService_CallEveryoneServer) error {
+	return status.Errorf(codes.Unimplemented, "method CallEveryone not implemented")
 }
 func (UnimplementedHeroesServiceServer) mustEmbedUnimplementedHeroesServiceServer() {}
 
@@ -251,25 +251,25 @@ func (x *heroesServiceCallManyHeroesServer) Recv() (*CallManyHeroesRequest, erro
 	return m, nil
 }
 
-func _HeroesService_CallEveryoneHeroes_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(HeroesServiceServer).CallEveryoneHeroes(&heroesServiceCallEveryoneHeroesServer{stream})
+func _HeroesService_CallEveryone_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(HeroesServiceServer).CallEveryone(&heroesServiceCallEveryoneServer{stream})
 }
 
-type HeroesService_CallEveryoneHeroesServer interface {
+type HeroesService_CallEveryoneServer interface {
 	Send(*CallEveryoneResponse) error
 	Recv() (*CallEveryoneRequest, error)
 	grpc.ServerStream
 }
 
-type heroesServiceCallEveryoneHeroesServer struct {
+type heroesServiceCallEveryoneServer struct {
 	grpc.ServerStream
 }
 
-func (x *heroesServiceCallEveryoneHeroesServer) Send(m *CallEveryoneResponse) error {
+func (x *heroesServiceCallEveryoneServer) Send(m *CallEveryoneResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *heroesServiceCallEveryoneHeroesServer) Recv() (*CallEveryoneRequest, error) {
+func (x *heroesServiceCallEveryoneServer) Recv() (*CallEveryoneRequest, error) {
 	m := new(CallEveryoneRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -301,8 +301,8 @@ var HeroesService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 		{
-			StreamName:    "CallEveryoneHeroes",
-			Handler:       _HeroesService_CallEveryoneHeroes_Handler,
+			StreamName:    "CallEveryone",
+			Handler:       _HeroesService_CallEveryone_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
