@@ -24,6 +24,8 @@ type HeroesServiceClient interface {
 	CallTeam(ctx context.Context, in *CallTeamRequest, opts ...grpc.CallOption) (HeroesService_CallTeamClient, error)
 	// Client Streaming
 	CallManyHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallManyHeroesClient, error)
+	// Full Duplex streaming
+	CallEveryoneHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneHeroesClient, error)
 }
 
 type heroesServiceClient struct {
@@ -109,6 +111,37 @@ func (x *heroesServiceCallManyHeroesClient) CloseAndRecv() (*CallManyHeroesRespo
 	return m, nil
 }
 
+func (c *heroesServiceClient) CallEveryoneHeroes(ctx context.Context, opts ...grpc.CallOption) (HeroesService_CallEveryoneHeroesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &HeroesService_ServiceDesc.Streams[2], "/heroes.HeroesService/CallEveryoneHeroes", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &heroesServiceCallEveryoneHeroesClient{stream}
+	return x, nil
+}
+
+type HeroesService_CallEveryoneHeroesClient interface {
+	Send(*CallEveryoneRequest) error
+	Recv() (*CallEveryoneResponse, error)
+	grpc.ClientStream
+}
+
+type heroesServiceCallEveryoneHeroesClient struct {
+	grpc.ClientStream
+}
+
+func (x *heroesServiceCallEveryoneHeroesClient) Send(m *CallEveryoneRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *heroesServiceCallEveryoneHeroesClient) Recv() (*CallEveryoneResponse, error) {
+	m := new(CallEveryoneResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // HeroesServiceServer is the server API for HeroesService service.
 // All implementations must embed UnimplementedHeroesServiceServer
 // for forward compatibility
@@ -119,6 +152,8 @@ type HeroesServiceServer interface {
 	CallTeam(*CallTeamRequest, HeroesService_CallTeamServer) error
 	// Client Streaming
 	CallManyHeroes(HeroesService_CallManyHeroesServer) error
+	// Full Duplex streaming
+	CallEveryoneHeroes(HeroesService_CallEveryoneHeroesServer) error
 	mustEmbedUnimplementedHeroesServiceServer()
 }
 
@@ -134,6 +169,9 @@ func (UnimplementedHeroesServiceServer) CallTeam(*CallTeamRequest, HeroesService
 }
 func (UnimplementedHeroesServiceServer) CallManyHeroes(HeroesService_CallManyHeroesServer) error {
 	return status.Errorf(codes.Unimplemented, "method CallManyHeroes not implemented")
+}
+func (UnimplementedHeroesServiceServer) CallEveryoneHeroes(HeroesService_CallEveryoneHeroesServer) error {
+	return status.Errorf(codes.Unimplemented, "method CallEveryoneHeroes not implemented")
 }
 func (UnimplementedHeroesServiceServer) mustEmbedUnimplementedHeroesServiceServer() {}
 
@@ -213,6 +251,32 @@ func (x *heroesServiceCallManyHeroesServer) Recv() (*CallManyHeroesRequest, erro
 	return m, nil
 }
 
+func _HeroesService_CallEveryoneHeroes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(HeroesServiceServer).CallEveryoneHeroes(&heroesServiceCallEveryoneHeroesServer{stream})
+}
+
+type HeroesService_CallEveryoneHeroesServer interface {
+	Send(*CallEveryoneResponse) error
+	Recv() (*CallEveryoneRequest, error)
+	grpc.ServerStream
+}
+
+type heroesServiceCallEveryoneHeroesServer struct {
+	grpc.ServerStream
+}
+
+func (x *heroesServiceCallEveryoneHeroesServer) Send(m *CallEveryoneResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *heroesServiceCallEveryoneHeroesServer) Recv() (*CallEveryoneRequest, error) {
+	m := new(CallEveryoneRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // HeroesService_ServiceDesc is the grpc.ServiceDesc for HeroesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -234,6 +298,12 @@ var HeroesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "CallManyHeroes",
 			Handler:       _HeroesService_CallManyHeroes_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "CallEveryoneHeroes",
+			Handler:       _HeroesService_CallEveryoneHeroes_Handler,
+			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
