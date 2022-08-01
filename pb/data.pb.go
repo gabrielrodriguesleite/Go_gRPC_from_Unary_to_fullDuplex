@@ -4,12 +4,13 @@
 // 	protoc        v3.14.0
 // source: pb/data.proto
 
-package data
+package heroes
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -19,22 +20,195 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type Calling struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Hero string `protobuf:"bytes,1,opt,name=hero,proto3" json:"hero,omitempty"`
+}
+
+func (x *Calling) Reset() {
+	*x = Calling{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pb_data_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Calling) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Calling) ProtoMessage() {}
+
+func (x *Calling) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_data_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Calling.ProtoReflect.Descriptor instead.
+func (*Calling) Descriptor() ([]byte, []int) {
+	return file_pb_data_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Calling) GetHero() string {
+	if x != nil {
+		return x.Hero
+	}
+	return ""
+}
+
+type CallRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Calling *Calling `protobuf:"bytes,1,opt,name=calling,proto3" json:"calling,omitempty"`
+}
+
+func (x *CallRequest) Reset() {
+	*x = CallRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pb_data_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CallRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallRequest) ProtoMessage() {}
+
+func (x *CallRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_data_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallRequest.ProtoReflect.Descriptor instead.
+func (*CallRequest) Descriptor() ([]byte, []int) {
+	return file_pb_data_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CallRequest) GetCalling() *Calling {
+	if x != nil {
+		return x.Calling
+	}
+	return nil
+}
+
+type CallResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Result string `protobuf:"bytes,1,opt,name=result,proto3" json:"result,omitempty"`
+}
+
+func (x *CallResponse) Reset() {
+	*x = CallResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_pb_data_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CallResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CallResponse) ProtoMessage() {}
+
+func (x *CallResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_pb_data_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CallResponse.ProtoReflect.Descriptor instead.
+func (*CallResponse) Descriptor() ([]byte, []int) {
+	return file_pb_data_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CallResponse) GetResult() string {
+	if x != nil {
+		return x.Result
+	}
+	return ""
+}
+
 var File_pb_data_proto protoreflect.FileDescriptor
 
 var file_pb_data_proto_rawDesc = []byte{
 	0x0a, 0x0d, 0x70, 0x62, 0x2f, 0x64, 0x61, 0x74, 0x61, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
-	0x04, 0x64, 0x61, 0x74, 0x61, 0x32, 0x0d, 0x0a, 0x0b, 0x44, 0x61, 0x74, 0x61, 0x53, 0x65, 0x72,
-	0x76, 0x69, 0x63, 0x65, 0x42, 0x09, 0x5a, 0x07, 0x70, 0x62, 0x2f, 0x64, 0x61, 0x74, 0x61, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x06, 0x68, 0x65, 0x72, 0x6f, 0x65, 0x73, 0x22, 0x1d, 0x0a, 0x07, 0x43, 0x61, 0x6c, 0x6c, 0x69,
+	0x6e, 0x67, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x65, 0x72, 0x6f, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x04, 0x68, 0x65, 0x72, 0x6f, 0x22, 0x38, 0x0a, 0x0b, 0x43, 0x61, 0x6c, 0x6c, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x29, 0x0a, 0x07, 0x63, 0x61, 0x6c, 0x6c, 0x69, 0x6e, 0x67,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0f, 0x2e, 0x68, 0x65, 0x72, 0x6f, 0x65, 0x73, 0x2e,
+	0x43, 0x61, 0x6c, 0x6c, 0x69, 0x6e, 0x67, 0x52, 0x07, 0x63, 0x61, 0x6c, 0x6c, 0x69, 0x6e, 0x67,
+	0x22, 0x26, 0x0a, 0x0c, 0x43, 0x61, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x16, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x32, 0x44, 0x0a, 0x0d, 0x48, 0x65, 0x72, 0x6f,
+	0x65, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x33, 0x0a, 0x04, 0x43, 0x61, 0x6c,
+	0x6c, 0x12, 0x13, 0x2e, 0x68, 0x65, 0x72, 0x6f, 0x65, 0x73, 0x2e, 0x43, 0x61, 0x6c, 0x6c, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14, 0x2e, 0x68, 0x65, 0x72, 0x6f, 0x65, 0x73, 0x2e,
+	0x43, 0x61, 0x6c, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0b,
+	0x5a, 0x09, 0x70, 0x62, 0x2f, 0x68, 0x65, 0x72, 0x6f, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
-var file_pb_data_proto_goTypes = []interface{}{}
+var (
+	file_pb_data_proto_rawDescOnce sync.Once
+	file_pb_data_proto_rawDescData = file_pb_data_proto_rawDesc
+)
+
+func file_pb_data_proto_rawDescGZIP() []byte {
+	file_pb_data_proto_rawDescOnce.Do(func() {
+		file_pb_data_proto_rawDescData = protoimpl.X.CompressGZIP(file_pb_data_proto_rawDescData)
+	})
+	return file_pb_data_proto_rawDescData
+}
+
+var file_pb_data_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_pb_data_proto_goTypes = []interface{}{
+	(*Calling)(nil),      // 0: heroes.Calling
+	(*CallRequest)(nil),  // 1: heroes.CallRequest
+	(*CallResponse)(nil), // 2: heroes.CallResponse
+}
 var file_pb_data_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0, // 0: heroes.CallRequest.calling:type_name -> heroes.Calling
+	1, // 1: heroes.HeroesService.Call:input_type -> heroes.CallRequest
+	2, // 2: heroes.HeroesService.Call:output_type -> heroes.CallResponse
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_pb_data_proto_init() }
@@ -42,18 +216,57 @@ func file_pb_data_proto_init() {
 	if File_pb_data_proto != nil {
 		return
 	}
+	if !protoimpl.UnsafeEnabled {
+		file_pb_data_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Calling); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pb_data_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CallRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_pb_data_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CallResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_pb_data_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   0,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_pb_data_proto_goTypes,
 		DependencyIndexes: file_pb_data_proto_depIdxs,
+		MessageInfos:      file_pb_data_proto_msgTypes,
 	}.Build()
 	File_pb_data_proto = out.File
 	file_pb_data_proto_rawDesc = nil
