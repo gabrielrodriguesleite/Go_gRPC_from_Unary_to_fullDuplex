@@ -31,4 +31,6 @@ https://www.linkedin.com/pulse/grpc-go-jos%25C3%25A9-augusto-zimmermann-negreiro
 
 ## TODO
 
-1. Adicionar flags para selecionar o tipo de request
+1. Adicionar flag para selecionar o tipo de request
+
+2. Adicionar flag para utilizar valores personalizados
