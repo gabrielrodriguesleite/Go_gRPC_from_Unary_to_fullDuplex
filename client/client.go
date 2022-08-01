@@ -18,6 +18,6 @@ func main() {
 	}
 	defer cc.Close()
 
-	c := pb.NewDataServiceClient(cc)
+	c := pb.NewHeroesServiceClient(cc)
 	fmt.Println(c)
 }
