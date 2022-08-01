@@ -28,3 +28,7 @@ go mod tidy # para instalar as dependencias
 **↓ so much errors to fix but ok (be aware)**
 
 https://www.linkedin.com/pulse/grpc-go-jos%25C3%25A9-augusto-zimmermann-negreiros/
+
+## TODO
+
+1. Adicionar flags para selecionar o tipo de request
